@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="index">
+        <t t-call="web.layout"/>
+        <h2>Store: <t t-esc="shop.name" /></h2>
+        <h2>Store Owner: <t t-esc="shop.shop_owner" /></h2>
+        <h2>Email: <t t-esc="shop.email" /></h2>
+
+        <div>
+            <a href="/customer_list">customer list</a>
+        </div>
+    </template>
+
+    <template id="customer_list">
+        <t t-call="web.layout"/>
+            <h1>Customers:</h1>
+            <table>
+                <tr>
+                    <th>Email</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Phone</th>
+                </tr>
+                <t t-foreach="customers" t-as="customer">
+                    <tr>
+                        <td><t t-esc="customer.email" /></td>
+                        <td><t t-esc="customer.first_name" /></td>
+                        <td><t t-esc="customer.last_name" /></td>
+                        <td><t t-esc="customer.phone" /></td>
+                    </tr>
+                </t>
+            </table>
+
+        <div>
+            <a href="/index">Index</a>
+        </div>
+    </template>
+
+</odoo>

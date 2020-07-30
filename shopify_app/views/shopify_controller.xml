@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="index">
+        <t t-call="web.html_container">
+            <t t-set="title">Shopify App</t>
+        </t>
+        <xpath expr="." position="inside">
+            <link type="text/css" rel="stylesheet" href="/shopify_app/static/src/css/shopify_app.css"/>
+            <script type="text/javascript" src="/shopify_app/static/src/js/shopify_app.js"/>
+<!--            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>-->
+<!--            <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css"></link>-->
+<!--            <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>-->
+            <script type="text/javascript" src="shopify_app/static/src/js/jquery2.1.1.min.js"/>
+            <link type="text/css" rel="stylesheet" href="shopify_app/static/src/css/jquery-ui1.12.1.css"/>
+            <script type="text/javascript" src="shopify_app/static/src/js/jquery-ui.min1.12.1.js"/>
+        </xpath>
+
+        <div>
+            <a href="/xero_connect">Xero connect</a><br/><br/>
+        </div>
+        <div class="container">
+<!--            CARD 1 General Settings-->
+            <div class="card">
+                <div class="card-header">
+                    General Settings
+                </div>
+                <div class="card-body">
+                    <form action="/save_settings" method="get" >
+                        <div class="form-group">
+                            <p class="card-text">Sales Account:</p>
+                            <div class="input-group mb-3">
+                                <select class="custom-select" id="inputGroupSelect01" name="sale_account">
+                                    <t t-if="accounts">
+                                        <t t-foreach="accounts" t-as="account">
+                                            <t t-if="account.type in ('SALES', 'REVENUE')">
+                                                <t t-if="shopify_store.sale_account == account.code">
+                                                    <option t-att-value="account.code" selected="selected" ><t t-esc="account.name"/></option>
+                                                </t>
+                                                <t t-else="">
+                                                    <option t-att-value="account.code" ><t t-esc="account.name"/></option>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <p class="card-text">Shipping Account:</p>
+                            <div class="input-group mb-3">
+                                <select class="custom-select" id="inputGroupSelect02" name="shipping_account">
+                                    <t t-if="accounts">
+                                        <t t-foreach="accounts" t-as="account">
+                                            <t t-if="account.type in ('SALES', 'REVENUE')">
+                                                <t t-if="shopify_store.shipping_account == account.code">
+                                                    <option t-att-value="account.code" selected="selected" ><t t-esc="account.name"/></option>
+                                                </t>
+                                                <t t-else="">
+                                                    <option t-att-value="account.code" ><t t-esc="account.name"/></option>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                        <p class="card-text">Payment Account (Account with "Enable payments to this account" enabled):</p>
+                            <div class="input-group mb-3">
+                                <select class="custom-select" id="inputGroupSelect03" name="payment_account">
+                                    <t t-if="accounts">
+                                        <t t-foreach="accounts" t-as="account">
+                                            <t t-if="account.type in ('BANK', 'EQUITY', 'CURRLIAB')">
+                                                <t t-if="shopify_store.payment_account == account.code">
+                                                    <option t-att-value="account.code" selected="selected" ><t t-esc="account.name"/></option>
+                                                </t>
+                                                <t t-else="">
+                                                    <option t-att-value="account.code" ><t t-esc="account.name"/></option>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox mb-3">
+                                <t t-if="shopify_store">
+                                    <t t-if="shopify_store.auto_sync">
+                                        <input type="checkbox" class="custom-control-input" id="customCheck" name="auto_sync" t-att-checked="'checked'"/>
+                                    </t>
+                                    <t t-else="">
+                                        <input type="checkbox" class="custom-control-input" id="customCheck" name="auto_sync" />
+                                    </t>
+                                </t>
+                                    <label class="custom-control-label" for="customCheck">Automatically Sync (at midnight everyday)</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </form>
+                </div>
+                <div class="container">
+                    <pre class="text-muted" style="white-space: pre-line;">
+                        Please choose your account accordingly:
+                        Sales Account will be applied to Invoice Line Items' Account
+                        Shipping Account will be applied to Shipping as an Invoice Line Item
+                        Payments will go to Payment Account on Xero
+                    </pre>
+                </div>
+            </div>
+            <br/>
+<!--            CARD 2 Export to Xero-->
+            <div class="card">
+                <div class="card-header">
+                    Export to Xero
+                </div>
+                <div class="card-body">
+                    <div>
+                        <t t-if="message">
+                            <span class="text-danger"><t t-esc="message" /></span>
+                        </t>
+                        <form action="/sync_to_xero" method="get">
+                            From: <input type="text" name="from_date" id="MyTextbox" style="margin-right: 10px;" />
+                            To: <input type="text" name="to_date" id="MyTextbox1" style="margin-right: 10px;" />
+                            <button type="submit" class="btn btn-primary">Sync to Xero</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="container">
+                    <pre class="text-muted" style="white-space: pre-line;">
+                        Choose date from and date to and export your data to Xero.
+                        Customers will be synced to Xero as: Shopify - "Customer Name" - ("Customer Id")
+                        Invoices will be synced to Xero as: Shopify - "Order Id"
+                        Products will be synced to Xero as Xero Items
+                    </pre>
+                </div>
+            </div>
+            <br/>
+<!--            CARD 3 History-->
+            <div class="card">
+                <div class="card-header">
+                    History
+                </div>
+                <div class="card-body">
+                    <p>History log of sync history, including automated jobs.</p>
+                    <p>Orders synced this month: 7</p>
+                    <p>Current Orders per plan: 100</p>
+                    <table class="table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Execution Time</th>
+                                <th scope="col">Finish Time	</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2020-07-28 08:21:35</td>
+                                <td>2020-07-28 08:21:35</td>
+                                <td>Success</td>
+                                <td>OK (1)</td>
+                            </tr>
+                            <tr>
+                                <td>2020-07-28 08:21:35</td>
+                                <td>2020-07-28 08:21:35</td>
+                                <td>Success</td>
+                                <td>OK (1)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br/>
+<!--            CARD 4 Plans -->
+            <div class="card">
+                <div class="card-header">
+                    Plans
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Essential (Current Plan)</h5>
+                                    <p><i>Free</i></p>
+                                    <p class="card-text">
+                                        <pre  style="white-space: pre-line;">
+                                            Sync Customers, Products, Orders to Xero
+                                            Manually Sync in date range
+                                            Automatic Updates every 24 hours
+                                            Account Mapping
+                                            Synchronization History
+                                            100 Orders/month
+                                        </pre>
+                                    </p>
+<!--                                    <a href="#" class="btn btn-primary">Go somewhere</a>-->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Standard</h5>
+                                    <p><i>$19.99/month</i></p>
+                                    <p class="card-text">
+                                        <pre style="white-space: pre-line;">
+                                            All Essential Features
+                                            Automatic Updates every 12 hours
+                                            Sync Gift Cards, Refunds to Xero
+                                            800 Orders/month
+                                        </pre>
+                                    </p>
+                                    <a href="#" class="btn btn-primary">Sign Up</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><b>Professional</b></h5>
+                                    <p><i>$19.99/month</i></p>
+                                    <p class="card-text">
+                                        <pre style="white-space: pre-line;">
+                                            All Standard Features
+                                            Automatic Updates every 3 hours
+                                            Unlimited Orders per month
+                                        </pre>
+                                    </p>
+                                    <a href="#" class="btn btn-primary">Sign Up</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+<!--            CARD 5 Disconnect-->
+            <div class="card">
+                <div class="card-header">
+                    Disconnect From Xero
+                </div>
+                <div class="card-body">
+                    <p>Organisation: </p>
+                    <p>Status:</p>
+                    <a href="#" class="btn btn-primary">Disconnect To Xero</a>
+                    <p>Disconnect from Xero. Delete the credentials.</p>
+                    <div class="alert alert-light" role="alert">
+                        Note: This will clear all Xero credentials. Cron will not run until you reconnect again.
+                    </div>
+                </div>
+            </div>
+            <br/>
+        </div>
+    </template>
+
+<!--    <template id="customer_list">-->
+<!--        <t t-call="web.layout"/>-->
+<!--            <h1>Customers:</h1>-->
+<!--            <table>-->
+<!--                <tr>-->
+<!--                    <th>Email</th>-->
+<!--                    <th>First Name</th>-->
+<!--                    <th>Last Name</th>-->
+<!--                    <th>Phone</th>-->
+<!--                </tr>-->
+<!--                <t t-foreach="customers" t-as="customer">-->
+<!--                    <tr>-->
+<!--                        <td><t t-esc="customer.email" /></td>-->
+<!--                        <td><t t-esc="customer.first_name" /></td>-->
+<!--                        <td><t t-esc="customer.last_name" /></td>-->
+<!--                        <td><t t-esc="customer.phone" /></td>-->
+<!--                    </tr>-->
+<!--                </t>-->
+<!--            </table>-->
+
+<!--        <div>-->
+<!--            <a t-attf-href="/index?shop_url={{shop_url}}">Index</a>-->
+<!--        </div>-->
+<!--    </template>-->
+
+<!--    <template id="xero_contact_list">-->
+<!--        <t t-call="web.layout"/>-->
+<!--        <h1>Xero Customers:</h1>-->
+<!--        <table>-->
+<!--            <tr>-->
+<!--                <th>Name</th>-->
+<!--                <th>FirstName</th>-->
+<!--                <th>LastName</th>-->
+<!--                <th>BankAccountDetails</th>-->
+<!--                <th>IsCustomer</th>-->
+<!--            </tr>-->
+<!--            <t t-foreach="contacts" t-as="contact">-->
+<!--                <tr>-->
+<!--                    <td><t t-esc="contact['Name']" /></td>-->
+<!--                    <td>-->
+<!--                        <t t-if="'FirstName' in contact">-->
+<!--                            <t t-esc="contact['FirstName']" />-->
+<!--                        </t>-->
+<!--                    </td>-->
+<!--                    <td>-->
+<!--                        <t t-if="'LastName' in contact">-->
+<!--                            <t t-esc="contact['LastName']" />-->
+<!--                        </t>-->
+<!--                    </td>-->
+<!--                    <td>-->
+<!--                        <t t-if="'BankAccountDetails' in contact">-->
+<!--                            <t t-esc="contact['BankAccountDetails']" />-->
+<!--                        </t>-->
+<!--                    </td>-->
+<!--                    <td><t t-esc="contact['IsCustomer']" /></td>-->
+<!--                </tr>-->
+<!--            </t>-->
+<!--        </table>-->
+<!--    </template>-->
+
+</odoo>
